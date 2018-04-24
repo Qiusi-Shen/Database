@@ -82,8 +82,8 @@ print $header;
               $dob = mysqli_real_escape_string($db, $_GET['dateb']);
               $dod = mysqli_real_escape_string($db, $_GET['dated']);
 
-              $sql="INSERT INTO Actor (id, lastname, firstname, sex, dob, dod)
-              VALUES ('$firstname', '$lastname', '$age')";
+              $sql="INSERT INTO Actor (id, last, first, sex, dob, dod)
+              VALUES ('$id','$lastname', '$firstname', '$sex','$dob','$dod')";
 
               if (!mysqli_query($db,$sql)) {
                 die('Error: ' . mysqli_error($db));
