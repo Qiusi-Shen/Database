@@ -55,43 +55,94 @@ print $header;
                   <label for="DOD">Date of Die</label>
                   <input type="text" class="form-control" placeholder="Text input" name="dated">(leave blank if alive now)<br>
                 </div>
-                <button type="submit" class="btn btn-default">Add!</button>
-            </form>
+                <button type="submit" name="submit" class="btn btn-default">Add!</button            </form>
             <?php
-
-            if($_GET['first_name']&&$_GET['last_name']&&$_GET['sex']&&$_GET['dateb'])
-            {
+            //print_r($_GET); 
+            
+              //print_r($_GET); 
               $db = mysqli_connect("localhost", "cs143", "", "TEST");
-	            if (mysqli_connect_errno())
-              {
-              echo "Failed to connect to MySQL: " . mysqli_connect_error();
+              $q = "SELECT MAX(id) FROM MaxPersonID";
+              if (!$rs = $db->query($q)) {
+                die('Error: ' . mysqli_error($db));
               }
-              $q = "SELECT * FROM MaxPersonID";
-              $rs = $db->query($q);
-              $rows = $rs->num_rows;
-              $id = $row[0];
-              $id++;
-              $q = "UPDATE MaxPersonID SET id=id+1";
-              $rs = $db->query($q);
+              //print_r($_GET);
+              $infoR = $rs->fetch_row();
+              $M_ID= $infoR[0];
+              $M_ID =$M_ID+1;
+              //$q = "UPDATE MaxPersonID SET id=id+1";
+              //$rs = $db->query($q);
 
               // escape variables for security
-              echo"AAAAAAAAAAAAAAAAA";
+              //echo"AAAAAAAAAAAAAAAAA";
+              function validDate($date) {
+                $t = explode('-', $date);
+                return (checkdate($t[1], $t[2], $t[0]));  //mm dd yyyy
+              }
+              $type = $_GET["identity"];
               $firstname = mysqli_real_escape_string($db, $_GET['fname']);
               $lastname = mysqli_real_escape_string($db, $_GET['lname']);
               $sex = mysqli_real_escape_string($db, $_GET['sex']);
               $dob = mysqli_real_escape_string($db, $_GET['dateb']);
               $dod = mysqli_real_escape_string($db, $_GET['dated']);
 
-              $sql="INSERT INTO Actor (id, last, first, sex, dob, dod)
-              VALUES ('$id','$lastname', '$firstname', '$sex','$dob','$dod')";
+              if(empty($firstname)){
+                exit(1);
+              }
 
-              if (!mysqli_query($db,$sql)) {
+              if(empty($lastname)){
+                exit(1);
+              }
+
+              if(empty($dod)) {
+                $dod = "NULL";
+              }
+              else if(!validDate($dod)){
+                exit(1);
+              }
+              else {
+                $dod = "\"".$dod."\"";
+              }
+
+              
+              if(empty($dob)) {
+                $dob = "NULL";
+              }
+              else if(!validDate($dob)){
+                exit(1);
+              }
+              else {
+                $dob = "\"".$dob."\"";
+              }
+
+              if($type == "Actor")
+                    $sql = "INSERT INTO Actor VALUES (".$M_ID.", '".$lastname."', '".$firstname."', '".$sex."', ".$dob.", ".$dod.");";
+              else if($type == "Director")
+                    $sql = "INSERT INTO Director VALUES (".$M_ID.", '".$lastname."', '".$firstname."', ".$dob.", ".$dod.");";
+              // if (!mysqli_query($db,$sql)) {
+              //   die('Error: ' . mysqli_error($db));
+              // }
+              if (!$rs = $db->query($sql)) {
                 die('Error: ' . mysqli_error($db));
               }
-              echo "1 record added";
 
-              mysqli_close($db);
+              $idq = "UPDATE MaxPersonID SET id = id+1;";
+              if (!$rs = $db->query($idq)) {
+                die('Error: ' . mysqli_error($db));
+              }
+              //print 'Total rows updated: ' . $db->affected_rows;
+              //echo "1 record added";
+              if($db->affected_rows > 0){
+              echo "<br>";
+              echo "Add "."$type "."Success:";
+              echo "<br>";
+              echo "$M_ID "."$lastname "."$firstname "."$dob "."$sex "."$dod";
             }
+          else {
+            echo "<br>";
+            echo "Add "."$type "."FAILED!!";
+            echo "<br>";
+          }
+              mysqli_close($db);
             ?>
         </div>
       </div>
