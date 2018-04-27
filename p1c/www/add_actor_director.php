@@ -61,6 +61,10 @@ print $header;
             
               //print_r($_GET); 
               $db = mysqli_connect("localhost", "cs143", "", "TEST");
+              if($db->connect_errno > 0)
+              { 
+                die('Unable to connect to database [' . $db->connect_error . ']'); 
+              }
               $q = "SELECT MAX(id) FROM MaxPersonID";
               if (!$rs = $db->query($q)) {
                 die('Error: ' . mysqli_error($db));

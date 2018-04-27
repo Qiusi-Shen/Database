@@ -75,6 +75,44 @@ print $header;
             </form>
 
 
+            <?php
+                $db = mysqli_connect("localhost", "cs143", "", "TEST");
+                if($db->connect_errno > 0)
+                { 
+                  die('Unable to connect to database [' . $db->connect_error . ']'); 
+                }
+
+                $title = $_GET['title'];
+                $company = $_GET['company'];
+                $year = $_GET['year'];
+                $rate = $_GET['rate'];
+                $genre = $_GET['genre'];
+
+                if (!$rs = $db->query('SELECT id FROM MaxMovieID')) { 
+                  $errmsg = $db->error;
+                  print "Query failed: $errmsg <br />";
+                  exit(1);
+              }
+
+              while($row = $rs->fetch_row()) {
+                foreach ($row as $rowField) {
+                  $maxID = $rowField;
+                }
+            }
+            $newMovieID = $maxID + 1;
+            $db->query("DELETE FROM MaxMovieID WHERE id=$maxID");
+            $db->query("INSERT INTO MaxMovieID VALUES ($newMovieID)");
+            $db->query("INSERT INTO Movie VALUES ($newMovieID,\"$title\",\"$year\",\"$rate\",\"$company\")");
+            foreach($genre_list as $selected){
+                $db->query("INSERT INTO MovieGenre VALUES ($newMovieID,\"$selected\")");
+                $genres .= $selected . "/";
+            }
+            $genres = trim($genres, "/");
+            echo "Added the movie: $title, $year, $rating, $company, $genres";
+            $rs->free();
+            $db->close();
+
+            ?>
 
         </div>
       </div>
